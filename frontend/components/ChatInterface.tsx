@@ -130,22 +130,19 @@ Textarea.displayName = "Textarea"
 
 export function AnimatedAIChat() {
     const [value, setValue] = useState("");
-    const [attachments, setAttachments] = useState<string[]>([]);
     const [isTyping, setIsTyping] = useState(false);
     const [isPending, startTransition] = useTransition();
     const [activeSuggestion, setActiveSuggestion] = useState<number>(-1);
     const [showCommandPalette, setShowCommandPalette] = useState(false);
     const [recentCommand, setRecentCommand] = useState<string | null>(null);
     const [mousePosition, setMousePosition] = useState({ x: 0, y: 0 });
+    const [chatMessages, setChatMessages] = useState<{ type: 'user' | 'ai', text: string }[]>([]);
     const { textareaRef, adjustHeight } = useAutoResizeTextarea({
         minHeight: 60,
         maxHeight: 200,
     });
     const [inputFocused, setInputFocused] = useState(false);
     const commandPaletteRef = useRef<HTMLDivElement>(null);
-    const [chatMessages, setChatMessages] = useState<{ type: 'user' | 'ai', text: string }[]>([]);
-    const hasConversationStarted = chatMessages.length > 0;
-
 
     const commandSuggestions: CommandSuggestion[] = [
         { 
@@ -250,29 +247,16 @@ export function AnimatedAIChat() {
     };
 
     const handleSendMessage = () => {
-        const trimmedValue = value.trim();
-        if (trimmedValue) {
-            setChatMessages(prevMessages => [...prevMessages, { type: 'user', text: trimmedValue }]);
+        if (value.trim()) {
             startTransition(() => {
                 setIsTyping(true);
-                setValue("");
-                adjustHeight(true);
                 setTimeout(() => {
                     setIsTyping(false);
-                    const aiResponse = "Right now I'm unavailable"; // Or your actual AI response
-                    setChatMessages(prevMessages => [...prevMessages, { type: 'ai', text: aiResponse }]);
-                }, 1500);
+                    setValue("");
+                    adjustHeight(true);
+                }, 3000);
             });
         }
-    };
-
-    // const handleAttachFile = () => {
-    //     const mockFileName = `file-${Math.floor(Math.random() * 1000)}.pdf`;
-    //     setAttachments(prev => [...prev, mockFileName]);
-    // };
-
-    const removeAttachment = (index: number) => {
-        setAttachments(prev => prev.filter((_, i) => i !== index));
     };
     
     const selectCommandSuggestion = (index: number) => {
@@ -285,18 +269,12 @@ export function AnimatedAIChat() {
     };
 
     return (
-        <div className={cn(
-            "min-h-screen flex flex-col w-full items-center text-neutral-800 dark:text-neutral-200 p-4 sm:p-6 relative overflow-hidden",
-            hasConversationStarted ? "justify-between bg-white dark:bg-neutral-900" : "justify-center bg-gray-50 dark:bg-neutral-950"
-        )}>
-            {/* Background Blurs (can be kept or conditionally modified) */}
-            {!hasConversationStarted && (
-                <div className="absolute inset-0 w-full h-full overflow-hidden -z-10">
-                    <div className="absolute top-0 left-1/4 w-96 h-96 bg-violet-500/10 rounded-full mix-blend-normal filter blur-[128px] animate-pulse" />
-                    <div className="absolute bottom-0 right-1/4 w-96 h-96 bg-indigo-500/10 rounded-full mix-blend-normal filter blur-[128px] animate-pulse delay-700" />
-                    <div className="absolute top-1/4 right-1/3 w-64 h-64 bg-fuchsia-500/10 rounded-full mix-blend-normal filter blur-[96px] animate-pulse delay-1000" />
-                </div>
-            )}
+        <div className="min-h-screen flex flex-col w-full items-center justify-center bg-gray-50 dark:bg-neutral-950 text-neutral-800 dark:text-neutral-200 p-6 relative overflow-hidden">
+        <div className="absolute inset-0 w-full h-full overflow-hidden">
+                <div className="absolute top-0 left-1/4 w-96 h-96 bg-violet-500/10 rounded-full mix-blend-normal filter blur-[128px] animate-pulse" />
+                <div className="absolute bottom-0 right-1/4 w-96 h-96 bg-indigo-500/10 rounded-full mix-blend-normal filter blur-[128px] animate-pulse delay-700" />
+                <div className="absolute top-1/4 right-1/3 w-64 h-64 bg-fuchsia-500/10 rounded-full mix-blend-normal filter blur-[96px] animate-pulse delay-1000" />
+            </div>
             <div className="w-full max-w-2xl mx-auto relative">
                 <motion.div 
                     className="relative z-10 space-y-12"
@@ -329,24 +307,6 @@ export function AnimatedAIChat() {
                         >
                             Type a command or ask a question
                         </motion.p>
-                    </div>
-                    <div className="w-full h-72 overflow-y-auto p-4 space-y-3 border border-neutral-200 dark:border-white/10 rounded-lg bg-white/30 dark:bg-neutral-900/30 custom-scrollbar">
-                        {chatMessages.map((msg, index) => (
-                            <motion.div
-                                key={index}
-                                initial={{ opacity: 0, y: 10 }}
-                                animate={{ opacity: 1, y: 0 }}
-                                transition={{ duration: 0.3 }}
-                                className={cn(
-                                    "p-3 rounded-xl max-w-[85%] text-sm shadow-sm",
-                                    msg.type === 'user'
-                                        ? "bg-violet-600 text-white ml-auto"
-                                        : "bg-neutral-100 dark:bg-neutral-800 text-neutral-800 dark:text-neutral-100 mr-auto"
-                                )}
-                            >
-                                {msg.text}
-                            </motion.div>
-                        ))}
                     </div>
 
                     <motion.div 
@@ -427,35 +387,6 @@ export function AnimatedAIChat() {
                                 showRing={false}
                             />
                         </div>
-
-                        <AnimatePresence>
-                            {attachments.length > 0 && (
-                                <motion.div 
-                                    className="px-4 pb-3 flex gap-2 flex-wrap"
-                                    initial={{ opacity: 0, height: 0 }}
-                                    animate={{ opacity: 1, height: "auto" }}
-                                    exit={{ opacity: 0, height: 0 }}
-                                >
-                                    {attachments.map((file, index) => (
-                                        <motion.div
-                                            key={index}
-                                            className="flex items-center gap-2 text-xs bg-white/[0.03] py-1.5 px-3 rounded-lg text-white/70"
-                                            initial={{ opacity: 0, scale: 0.9 }}
-                                            animate={{ opacity: 1, scale: 1 }}
-                                            exit={{ opacity: 0, scale: 0.9 }}
-                                        >
-                                            <span>{file}</span>
-                                            <button 
-                                                onClick={() => removeAttachment(index)}
-                                                className="text-white/40 hover:text-white transition-colors"
-                                            >
-                                                <XIcon className="w-3 h-3" />
-                                            </button>
-                                        </motion.div>
-                                    ))}
-                                </motion.div>
-                            )}
-                        </AnimatePresence>
 
                         <div className={cn(
                             "p-4 border-t flex items-center justify-between gap-4",
