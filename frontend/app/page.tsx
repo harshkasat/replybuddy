@@ -5,9 +5,9 @@ export default function Home() {
   return (
     <div className="relative w-screen min-h-screen">
       
-      <div className="absolute top-1/8 left-1/2 transform -translate-x-1/2 z-10">
+      {/* <div className="absolute top-1/8 left-1/2 transform -translate-x-1/2 z-10">
         <CheckServer/>
-      </div>
+      </div> */}
       
       {/* Main Content */}
       <div className="w-full">
