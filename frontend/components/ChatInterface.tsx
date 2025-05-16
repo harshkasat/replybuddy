@@ -49,7 +49,6 @@ function useAutoResizeTextarea({
     [minHeight, maxHeight]
   );
 
-  
 
   useEffect(() => {
     const textarea = textareaRef.current;
@@ -178,24 +177,8 @@ export function AnimatedAIChat() {
   ];
 
   useEffect(() => {
-    const scrollTimeout = setTimeout(() => {
-      if (chatContainerRef.current) {
-        chatContainerRef.current.scrollTop =
-        chatContainerRef.current.scrollHeight;
-      }
-    }, 100);
-    return () => clearTimeout(scrollTimeout);
-  }, [messages]);
-
-  useEffect(() => {
-    const chatContainer = chatContainerRef.current;
-    if (chatContainer) {
-      if (chatContainer.scrollHeight > chatContainer.clientHeight) {
-        chatContainer.style.overflowY = 'auto';
-      } else {
-        chatContainer.style.overflowY = 'hidden';
-      }
-      chatContainer.scrollTop = chatContainer.scrollHeight;
+    if (chatContainerRef.current) {
+    chatContainerRef.current.scrollTop = chatContainerRef.current.scrollHeight;
     }
   }, [messages]);
 
@@ -345,7 +328,6 @@ export function AnimatedAIChat() {
           {
             headers: {
               'Content-Type': 'application/json',
-              'Cookie': 'csrftoken=4ai1LBgqJAPHbH0Gy7eRaSS8id2dPabc', // Make sure this cookie is handled correctly
             },
           }
         );

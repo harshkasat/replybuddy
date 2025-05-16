@@ -40,17 +40,18 @@ export default function RootLayout({
             <SidebarProvider>
               <div className="flex h-screen">
                 <AppSidebar />
-                <main className="flex-1 relative">
-                  <div className="absolute z-50 flex items-center gap-4 m-4">
-                  <div className="p-2 hover:bg-accent rounded-lg scale-125">
-                    <SidebarTrigger />
+                <main className="flex flex-col flex-1">
+                  <div className="flex items-center justify-between p-4 border-b border-neutral-200 dark:border-neutral-800">
+                    <div className="p-2 rounded-lg">
+                      <SidebarTrigger />
+                      <ModeToggle />
+                    </div>
+                    {/* <div className="p-2 hover:bg-accent rounded-lg">
+                      <ModeToggle />
+                    </div> */}
                   </div>
-                  <div className="p-2 hover:bg-accent rounded-lg scale-125">
-                    <ModeToggle />
-                  </div>
-                  </div>
-                  <div className="p-4">
-                  {children}
+                  <div className="flex-1 overflow-y-auto">
+                    {children}
                   </div>
                 </main>
               </div>
