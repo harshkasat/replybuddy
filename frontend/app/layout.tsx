@@ -1,10 +1,9 @@
 import type { Metadata } from "next";
 import { Geist, Geist_Mono } from "next/font/google";
-import { ThemeProvider } from "@/components/theme-provider"
-import { SidebarProvider, SidebarTrigger } from "@/components/ui/sidebar"
-import { AppSidebar } from "@/components/ChatSidebar"
+import { ThemeProvider } from "@/components/theme-provider";
+import { SidebarProvider, SidebarTrigger } from "@/components/ui/sidebar";
+import { AppSidebar } from "@/components/ChatSidebar";
 import { ModeToggle } from "@/components/ModeToggle";
-
 
 import "./globals.css";
 
@@ -32,31 +31,26 @@ export default function RootLayout({
     <html lang="en">
       <body className="overflow-hidden">
         <ThemeProvider
-            attribute="class"
-            defaultTheme="dark"
-            enableSystem
-            disableTransitionOnChange
-          >
-            <SidebarProvider>
-              <div className="flex h-screen">
-                <AppSidebar />
-                <main className="flex flex-col flex-1">
-                  <div className="flex items-center justify-between p-4 border-b border-neutral-200 dark:border-neutral-800">
-                    <div className="p-2 rounded-lg">
-                      <SidebarTrigger />
-                      <ModeToggle />
-                    </div>
-                    {/* <div className="p-2 hover:bg-accent rounded-lg">
-                      <ModeToggle />
-                    </div> */}
+          attribute="class"
+          defaultTheme="dark"
+          enableSystem
+          disableTransitionOnChange
+        >
+          <SidebarProvider>
+            <div className="flex h-screen">
+              <AppSidebar />
+              <main className="flex flex-col flex-1">
+                <div className="flex items-center justify-between p-4 border-b border-neutral-200 dark:border-neutral-800">
+                  <div className="p-2 rounded-lg">
+                    <SidebarTrigger />
+                    <ModeToggle />
                   </div>
-                  <div className="flex-1 overflow-y-auto">
-                    {children}
-                  </div>
-                </main>
-              </div>
-            </SidebarProvider>
-          </ThemeProvider>
+                </div>
+                <div className="flex-1 overflow-y-auto">{children}</div>
+              </main>
+            </div>
+          </SidebarProvider>
+        </ThemeProvider>
       </body>
     </html>
   );
