@@ -148,7 +148,7 @@ export function AnimatedAIChat() {
   const commandPaletteRef = useRef<HTMLDivElement>(null);
   const chatContainerRef = useRef<HTMLDivElement>(null);
   const [chatStarted, setChatStarted] = useState(false);
-
+  const BASE_URL = process.env.NEXT_PUBLIC_BACKEND_URL || "http://127.0.0.1:8000";
   const commandSuggestions: CommandSuggestion[] = [
     {
       icon: <Mail className="w-4 h-4" />,
@@ -399,7 +399,7 @@ export function AnimatedAIChat() {
                 )}
               </AnimatePresence>
 
-              <div className="p-4">
+              <div className="p-4 pt-0">
                 <Textarea
                   ref={textareaRef}
                   value={value}
@@ -513,17 +513,17 @@ export function AnimatedAIChat() {
         </div>
       ) : (
         // Chat UI - Show after chat starts
-        <div className="w-full max-w-2xl mx-auto h-screen flex flex-col">
+        <div className="w-full max-w-2xl mx-auto h-[calc(100vh-2rem)] flex flex-col">
           <motion.div
             className="relative z-10 flex-1 flex flex-col"
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
             transition={{ duration: 0.3 }}
           >
-            <div className="flex-1 overflow-hidden">
+            <div className="flex-1 overflow-hidden pb-6">
               <div
                 ref={chatContainerRef}
-                className="h-full overflow-y-auto p-4 space-y-4"
+                className="h-full overflow-y-auto px-6 space-y-4"
               >
                 {messages.map((message) => (
                   <motion.div
@@ -668,29 +668,6 @@ export function AnimatedAIChat() {
           </motion.div>
         </div>
       )}
-
-      <AnimatePresence>
-        {isTyping && (
-          <motion.div
-            className="fixed bottom-8 left-1/2 mx-auto transform -translate-x-1/2 backdrop-blur-lg bg-white/90 dark:bg-neutral-800/90 rounded-full px-4 py-2 shadow-lg border border-neutral-200 dark:border-neutral-700"
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            exit={{ opacity: 0, y: 20 }}
-          >
-            <div className="flex items-center gap-3">
-              <div className="w-8 h-7 rounded-full bg-neutral-200 dark:bg-white/[0.1] flex items-center justify-center text-center">
-                <span className="text-xs font-medium text-neutral-700 dark:text-white/90 mb-0.5">
-                  zap
-                </span>
-              </div>
-              <div className="flex items-center gap-2 text-sm text-neutral-600 dark:text-neutral-300">
-                <span>Thinking</span>
-                <TypingDots />
-              </div>
-            </div>
-          </motion.div>
-        )}
-      </AnimatePresence>
 
       {inputFocused && (
         <motion.div
