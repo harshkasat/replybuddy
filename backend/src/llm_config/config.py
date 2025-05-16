@@ -1,16 +1,16 @@
 import logging
 from google import genai
 from google.genai import types as google_config
-from llm_config import genai_api_key, SAFE_SETTINGS
+from src.llm_config import genai_api_key, SAFE_SETTINGS, SYSTEM_INSTRUCTION
 
 
 # Initialize the API client
 class LlmClient:
-    def __init__(self, prompt_instruction):
+    def __init__(self):
         try:
             self.client = genai.Client(api_key=genai_api_key)
             self.config = google_config.GenerateContentConfig(
-                system_instruction=prompt_instruction,
+                system_instruction=SYSTEM_INSTRUCTION,
                 safety_settings=SAFE_SETTINGS,
                 response_mime_type="application/json",
             )
