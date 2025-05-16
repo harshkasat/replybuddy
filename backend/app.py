@@ -57,12 +57,12 @@ async def block_postman(request: Request, call_next):
 @app.get("/health")
 async def check_health():
     try:
-        JSONResponse(
-            content="Server is running good",
+        return JSONResponse(
+           content="server running good",
             status_code=200
         )
     except Exception as e:
-        JSONResponse(
+        return JSONResponse(
             content=f"Internal Error: {e}",
             status_code=500
         )
