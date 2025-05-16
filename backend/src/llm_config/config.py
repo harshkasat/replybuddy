@@ -13,6 +13,7 @@ class LlmClient:
                 system_instruction=SYSTEM_INSTRUCTION,
                 safety_settings=SAFE_SETTINGS,
                 response_mime_type="application/json",
+                top_k=1
             )
             logging.info("LLM component initialized successfully")
         except Exception as e:

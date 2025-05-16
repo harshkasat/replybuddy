@@ -20,8 +20,8 @@ app = FastAPI(
 app = FastAPI()
 
 origins = [
-    "https://mywebsite.com",
-    "https://new-allowed-site.com",  # <-- add new origin here
+    "http://localhost:3000",
+    os.environ.get('PROD_URL'),
 ]
 
 app.add_middleware(
@@ -53,6 +53,19 @@ async def block_postman(request: Request, call_next):
     response = await call_next(request)
     return response
 
+
+@app.get("/")
+async def check_homepage():
+    try:
+        return JSONResponse(
+           content="server running good",
+            status_code=200
+        )
+    except Exception as e:
+        return JSONResponse(
+            content=f"Internal Error: {e}",
+            status_code=500
+        )
 
 @app.get("/health")
 async def check_health():

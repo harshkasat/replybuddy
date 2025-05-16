@@ -35,7 +35,7 @@ Cheers,
 
 {
   "response": {
-    "message": "string",             // inside one message like big string cold mail with subject, body, target, cta etc..
+    "message": "string",           // YOU MUST FOLLOW THIS JSON ONLY
     "goal": "string"              // e.g., win job, get reply
   }
 }
