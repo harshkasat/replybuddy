@@ -1,4 +1,5 @@
 import logging
+import json
 from src.services import UPWORK_SERVICE_PROMPT
 from src.llm_config.config import LlmClient
 
@@ -10,7 +11,7 @@ class UpworkService(LlmClient):
             response = self.generate_content(
                 content=UPWORK_SERVICE_PROMPT + comapany_info
             )
-            return response.text
+            return json.loads(response.text)
         except Exception as e:
             logging.error(f"Failed to generate upwork service content: {e}")
-            return e
+            return None
