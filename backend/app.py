@@ -54,6 +54,18 @@ async def block_postman(request: Request, call_next):
     return response
 
 
+@app.get("/health")
+async def check_health():
+    try:
+        JSONResponse(
+            content="Server is running good",
+            status_code=200
+        )
+    except Exception as e:
+        JSONResponse(
+            content=f"Internal Error: {e}",
+            status_code=500
+        )
 
 @app.post("/generate_email")
 async def generate_email(request: UserRequest):
