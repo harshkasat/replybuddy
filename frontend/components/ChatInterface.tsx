@@ -3,6 +3,7 @@
 import { useEffect, useRef, useCallback, useTransition } from "react";
 import { useState } from "react";
 import { cn } from "@/lib/utils";
+import axios from 'axios';
 import {
   Briefcase,
   Mail,
@@ -47,6 +48,8 @@ function useAutoResizeTextarea({
     },
     [minHeight, maxHeight]
   );
+
+  
 
   useEffect(() => {
     const textarea = textareaRef.current;
@@ -149,6 +152,10 @@ export function AnimatedAIChat() {
   const chatContainerRef = useRef<HTMLDivElement>(null);
   const [chatStarted, setChatStarted] = useState(false);
   const BASE_URL = process.env.NEXT_PUBLIC_BACKEND_URL || "http://127.0.0.1:8000";
+  const [conversationId, setConversationId] = useState<string>(() => {
+    // Generate a unique conversation ID (you can use a library like uuid)
+    return Math.random().toString(36).substring(2, 15);
+  });
   const commandSuggestions: CommandSuggestion[] = [
     {
       icon: <Mail className="w-4 h-4" />,
@@ -171,11 +178,34 @@ export function AnimatedAIChat() {
   ];
 
   useEffect(() => {
-    if (chatContainerRef.current) {
-      chatContainerRef.current.scrollTop =
+    const scrollTimeout = setTimeout(() => {
+      if (chatContainerRef.current) {
+        chatContainerRef.current.scrollTop =
         chatContainerRef.current.scrollHeight;
+      }
+    }, 100);
+    return () => clearTimeout(scrollTimeout);
+  }, [messages]);
+
+  useEffect(() => {
+    const chatContainer = chatContainerRef.current;
+    if (chatContainer) {
+      if (chatContainer.scrollHeight > chatContainer.clientHeight) {
+        chatContainer.style.overflowY = 'auto';
+      } else {
+        chatContainer.style.overflowY = 'hidden';
+      }
+      chatContainer.scrollTop = chatContainer.scrollHeight;
     }
   }, [messages]);
+
+  interface Message {
+    id: string;
+    conversation_id: string;
+    role: "user" | "assistant";
+    message: string; // Changed 'text' to 'message' to match your format
+    timestamp: string;
+  }
 
   useEffect(() => {
     if (value.startsWith("/") && !value.includes(" ")) {
@@ -260,42 +290,107 @@ export function AnimatedAIChat() {
     }
   };
 
-  const handleSendMessage = () => {
+
+  const handleSendMessage = async () => {
     if (value.trim()) {
       // Add user message
+      const timestamp = new Date().toISOString();
       const userMessage: Message = {
         id: Date.now().toString(),
-        type: "user",
-        text: value.trim(),
+        conversation_id: conversationId,
+        role: "user",
+        message: value.trim(), // Use 'message' here
+        timestamp: timestamp,
       };
-
       setMessages((prev) => [...prev, userMessage]);
       setValue("");
       adjustHeight(true);
-
-      // Set chat as started
       if (!chatStarted) {
         setChatStarted(true);
       }
 
-      // Simulate AI response
-      startTransition(() => {
-        setIsTyping(true);
+      setIsTyping(true);
+      let apiUrl = "";
+      let messageToSend = value.trim();
 
-        // Simulate AI thinking and then responding
+      if (value.startsWith("/email")) {
+        apiUrl = `${BASE_URL}/generate_email`;
+        messageToSend = value.substring("/email".length).trim(); // Extract the actual message
+      } else if (value.startsWith("/upwork")) {
+        apiUrl = `${BASE_URL}/generate_upwork`;
+        messageToSend = value.substring("/upwork".length).trim(); // Extract the actual message
+      } else if (value.startsWith("/message")) {
+        apiUrl = `${BASE_URL}/generate_message`;
+        messageToSend = value.substring("/message".length).trim(); // Extract the actual message
+      } else {
+        // Default AI response for regular messages (without a command)
         setTimeout(() => {
           setIsTyping(false);
-
-          // Add AI response
           const aiMessage: Message = {
             id: (Date.now() + 1).toString(),
-            type: "ai",
-            text: "Right now I'm not available. This is a placeholder response. In a real application, this would be replaced with an actual AI response.",
+            conversation_id: conversationId,
+            role: "assistant",
+            message: "Thanks for your message! I'm currently not connected to a specific command. How else can I help?",
+            timestamp: new Date().toISOString(),
           };
-
           setMessages((prev) => [...prev, aiMessage]);
-        }, 2000);
-      });
+        }, 1000);
+        return;
+      }
+
+      try {
+        const response = await axios.post(
+          apiUrl,
+          { company_info: messageToSend }, // Or adjust the payload as needed
+          {
+            headers: {
+              'Content-Type': 'application/json',
+              'Cookie': 'csrftoken=4ai1LBgqJAPHbH0Gy7eRaSS8id2dPabc', // Make sure this cookie is handled correctly
+            },
+          }
+        );
+
+        setIsTyping(false);
+        if (response.data && response.data.data && response.data.data.response && response.data.data.response.message) {
+          const aiMessage: Message = {
+            id: (Date.now() + 2).toString(),
+            conversation_id: conversationId,
+            role: "assistant",
+            message: response.data.data.response.message, // Use 'message' here
+            timestamp: new Date().toISOString(),
+          };
+          setMessages((prev) => [...prev, aiMessage]);
+        } else if (response.data && response.data.error) {
+          const aiMessage: Message = {
+            id: (Date.now() + 2).toString(),
+            conversation_id: conversationId,
+            role: "assistant",
+            message: `Error: ${response.data.error}`, // Use 'message' here
+            timestamp: new Date().toISOString(),
+          };
+          setMessages((prev) => [...prev, aiMessage]);
+        } else {
+          const aiMessage: Message = {
+            id: (Date.now() + 2).toString(),
+            conversation_id: conversationId,
+            role: "assistant",
+            message: "Sorry, I received an unexpected response from the server.", // Use 'message' here
+            timestamp: new Date().toISOString(),
+          };
+          setMessages((prev) => [...prev, aiMessage]);
+        }
+      } catch (error: any) {
+        setIsTyping(false);
+        console.error("API Error:", error);
+        const aiMessage: Message = {
+          id: (Date.now() + 2).toString(),
+          conversation_id: conversationId,
+          role: "assistant",
+          message: `Sorry, there was an error communicating with the server: ${error.message}`, // Use 'message' here
+          timestamp: new Date().toISOString(),
+        };
+        setMessages((prev) => [...prev, aiMessage]);
+      };
     }
   };
 
@@ -523,14 +618,15 @@ export function AnimatedAIChat() {
             <div className="flex-1 overflow-hidden pb-6">
               <div
                 ref={chatContainerRef}
-                className="h-full overflow-y-auto px-6 space-y-4"
+                className="h-full overflow-y-auto px-6 space-y-4 scroll-smooth"
+                style={{ maxHeight: "calc(100vh - 200px)" }}
               >
                 {messages.map((message) => (
                   <motion.div
                     key={message.id}
                     className={cn(
                       "flex items-start gap-3 p-3 rounded-lg",
-                      message.type === "user"
+                      message.role === "user"
                         ? "bg-violet-50 dark:bg-violet-900/20 ml-6"
                         : "bg-neutral-100 dark:bg-white/[0.03] mr-6"
                     )}
@@ -540,18 +636,18 @@ export function AnimatedAIChat() {
                     <div
                       className={cn(
                         "w-8 h-8 rounded-full flex items-center justify-center flex-shrink-0",
-                        message.type === "user"
+                        message.role === "user"
                           ? "bg-violet-100 dark:bg-violet-700/30 text-violet-600 dark:text-violet-300"
                           : "bg-neutral-200 dark:bg-white/10 text-neutral-700 dark:text-white/90"
                       )}
                     >
-                      {message.type === "user" ? (
+                      {message.role === "user" ? (
                         <User className="w-4 h-4" />
                       ) : (
                         <Bot className="w-4 h-4" />
                       )}
                     </div>
-                    <div className="text-sm">{message.text}</div>
+                    <div className="text-sm" style={{ whiteSpace: 'pre-wrap' }}>{message.message}</div>
                   </motion.div>
                 ))}
               </div>
