@@ -1,4 +1,5 @@
-EMAIL_SERVICE_PROMPT = """Write a concise cold email (under 120 words) from Harsh Kasat to a hiring manager or team lead at [insert company name].
+prev_conservations = ""  # Initialize with empty string or fetch from your conversation history
+EMAIL_SERVICE_PROMPT = f"""Write a concise cold email (under 120 words) from Harsh Kasat to a hiring manager or team lead at [insert company name].
 
 Start with a personalized compliment or reference to the company's recent work.
 Briefly mention Harsh's relevant experience or a specific project that aligns with the company's focus.
@@ -14,11 +15,25 @@ IMPORTANT:
 - Show relevance - Mention something that connects you both (mutual interest, recent work, etc).
 - Be human - Don't sound like a robot or sales rep. Write how you talk.
 - Give value upfront - Tell what's in it for them, not just what you want.
-- Subject line matters - Keep it curiosity-piquing or clear.
+- Subject Line = 90% of the Game
+    You only get one shot at getting opened. Make it sharp.
+    Examples that worked:
+    “openai + notion backed me — incoming stanford”
+    “dash founder — quick q”
+    “YC founder building ai agents — saw your latest launch”
 - Don't attach files - Can look spammy or risky.
 - Follow up once - If no reply, one soft follow-up is okay
-- this ai generates message make it more humanize, make grammicatly mistake, and don't add too much grammaer.
+- First Line = The Real Hook
+    Most people decide to stop reading after the first sentence. Make it personal and smart.
+- more humanize, make grammicatly mistake, and don't add too much grammaer respose as human because human make mistake
 
+- When writing email you need to focus on Three PPC ( Pain Point, Providing parital Solution and CTA)
+
+Also important:
+If you see something from our previous conversations that connects to the company or makes the stronger, feel free to connect the dots.
+It's not required, but if it fits, use it to make the message more relevant and concise.
+
+HERE IS PREVIOUS CCONVERSATIONS: {prev_conservations}
 
 
 Example (to show how this prompt works):
@@ -33,12 +48,12 @@ Totally cool if now's not a good time. Either way, thanks for the great content!
 Cheers,
 [Your Name]
 
-{
-  "response": {
+{{
+  "response": {{
     "message": "string",           // YOU MUST FOLLOW THIS JSON ONLY
     "goal": "string"              // e.g., win job, get reply
-  }
-}
+  }}
+}}
 
 
 HERE IS CONTEXT ABOUT COMPANY, PRODUCT AND OTHER THINGS:
@@ -46,7 +61,7 @@ HERE IS CONTEXT ABOUT COMPANY, PRODUCT AND OTHER THINGS:
 """
 
 
-UPWORK_SERVICE_PROMPT = """Write a short Upwork proposal (under 150200 words) for [insert job title or description].
+UPWORK_SERVICE_PROMPT = f"""Write a short Upwork proposal (under 150200 words) for [insert job title or description].
 
 Start with a specific hook (refer to their job post, goal, or challenge).
 
@@ -78,8 +93,13 @@ Don't over-format  Keep it clean and easy to read.
 Avoid attachments  Instead, link to your portfolio or relevant project.
 
 Follow up politely  If they reply, stay casual and helpful, not pushy.
--this ai generates message make it more humanize, make grammicatly mistake, and don't add too much grammaer.
+- more humanize, make grammicatly mistake, and don't add too much grammaer respose as human because human make mistake
 
+Also important:
+If you see something from our previous conversations that connects to the company or makes the stronger, feel free to connect the dots.
+It's not required, but if it fits, use it to make the message more relevant and concise.
+
+HERE IS PREVIOUS CCONVERSATIONS: {prev_conservations}
 
 Example Proposal (for a job titled: “Need AI to generate blog posts automatically”)
 Hi [Client Name],
@@ -96,17 +116,17 @@ Harsh Kasat
 
 
 the response must follow this json as resposne:
-{
-  "response": {
+{{
+  "response": {{
     "message": "string",             // proposal with intro, body, target, cta etc..
     "goal": "string"              // e.g., win job, get reply
-  }
-}
+  }}
+}}
 
 HERE IS CONTEXT ABOUT COMPANY, PRODUCT AND OTHER THINGS: 
 """
 
-MESSAGE_SERVICE_PROMPT = """You're my AI assistant for writing messages during a conversation with a client, lead, or collaborator.
+MESSAGE_SERVICE_PROMPT = f"""You're my AI assistant for writing messages during a conversation with a client, lead, or collaborator.
 
 I'll give you the list of messages or replies in the chat.
 Your job:
@@ -118,8 +138,14 @@ Suggest favorable, natural replies that keep the conversation going or move it t
 Keep it short, casual, and human — no overly formal tone
 
 If needed, help me ask good questions, clarify doubts, or propose next steps
+- more humanize, make grammicatly mistake, and don't add too much grammaer respose as human because human make mistake.
 
 Output: a few options for what I can reply with — ideally in plain text, no over-explaining
+Also important:
+If you see something from our previous conversations that connects to the company or makes the stronger, feel free to connect the dots.
+It's not required, but if it fits, use it to make the message more relevant and concise.
+
+HERE IS PREVIOUS CCONVERSATIONS: {prev_conservations}
 
 Example:
 Client: I like the idea, but we already use Jasper for blog generation.  
@@ -129,12 +155,12 @@ Client: I like the idea, but we already use Jasper for blog generation.
 Me: Makes sense! If you're ever looking for a more customizable or self-hosted setup, happy to show you what mine can do(AI Generated).
 
 the response must follow this json: 
-{
-  "response": {
+{{
+  "response": {{
     "message": "string",           
     "goal": "string"              // e.g., win job, get reply
-  }
-}
+  }}
+}}
 
 HERE IS CONTEXT ABOUT Message and OTHER THINGS: 
 """

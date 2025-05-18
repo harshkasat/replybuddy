@@ -5,7 +5,7 @@ from src.services.upwork_proposal_service import UpworkService
 from src.services.message_service import MessageService
 from fastapi import FastAPI, Request, HTTPException
 from fastapi.responses import JSONResponse
-from pydantic import BaseModel
+from src.utils.pydantic_schema import UserRequest, AIResponse
 from fastapi.middleware.cors import CORSMiddleware
 from dotenv import load_dotenv
 load_dotenv()
@@ -32,16 +32,6 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
-
-class UserRequest(BaseModel):
-    company_info: str
-
-class AIResponse(BaseModel):
-    message: str
-    goal: str
-    status: str
-    data: dict = None
-    error: str = None
 
 
 @app.middleware("http")
@@ -84,7 +74,9 @@ async def check_health():
 async def generate_email(request: UserRequest):
     try:
         email_service = EmailService()
-        response = email_service.email_service(request.company_info)
+        response = email_service.email_service(comapany_info=request.company_info,
+                                            prev_conservation=request.prev_conservation)
+
         print(f"resposne type: {type(response)}")
         logging.info("Email generated successfully")
         if response is None:
@@ -123,7 +115,8 @@ async def generate_email(request: UserRequest):
 async def generate_upwork(request: UserRequest):
     try:
         service = UpworkService()
-        response = service.upwork_service(request.company_info)
+        response = service.upwork_service(comapany_info=request.company_info,
+                                          prev_conservation=request.prev_conservation)
         logging.info("Upwork Proposal generated successfully")
         if response is None:
             logging.error("proposal generation returned None")
@@ -161,7 +154,8 @@ async def generate_upwork(request: UserRequest):
 async def generate_message(request: UserRequest):
     try:
         service = MessageService()
-        response = service.message_service(request.company_info)
+        response = service.message_service(comapany_info=request.company_info,
+                                           prev_conservation=request.prev_conservation)
         logging.info("Message generated successfully")
         if response is None:
             logging.error("Message generation returned None")
