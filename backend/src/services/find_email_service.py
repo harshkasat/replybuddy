@@ -1,14 +1,18 @@
 import re
 import time
+import json
 import logging
 from urllib.parse import urljoin
 from bs4 import BeautifulSoup
 import requests
 from selenium import webdriver
 from selenium.webdriver.chrome.options import Options
+from src.utils.pydantic_schema import PrevConservation
+from src.services import EMAIL_SEARCH_PROMPT
+from src.llm_config.config import LlmClient
 
 
-class FindEmail:
+class FindEmailService(LlmClient):
     def get_all_urls(self, base_url):
         try:
             response = requests.get(base_url, timeout=15)
@@ -26,7 +30,8 @@ class FindEmail:
             return []
 
     def get_legit_url(self, urls):
-        pattern = re.compile(r"(privacy|policy|contact[\s\-]?us)", re.IGNORECASE)
+        pattern = re.compile(
+            r"(privacy|policy|contact[\s\-]?us)", re.IGNORECASE)
         matched_urls = [url for url in urls if pattern.search(url)]
 
         return matched_urls
@@ -56,7 +61,8 @@ class FindEmail:
             visible_text = driver.find_element("tag name", "body").text
             combined = html + "\n" + visible_text
 
-            email_re = re.compile(r"[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}")
+            email_re = re.compile(
+                r"[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}")
             regex_emails = set(email_re.findall(combined))
 
             # combine both sets
@@ -69,8 +75,11 @@ class FindEmail:
         finally:
             driver.quit()
 
-    def find_email(self, base_url):
+    def find_email(
+        self, base_url, query: str, prev_conservation: PrevConservation = None
+    ):
         try:
+            email_address_list = []
             urls = self.get_all_urls(base_url=base_url)
             all_legit_urls = self.get_legit_url(urls=urls)
             if all_legit_urls:
@@ -79,15 +88,37 @@ class FindEmail:
                     email = self.extract_emails_with_selenium(url=url)
                     if email:
                         print(f"Find the email: {email} from url {url}")
+                        email_address_list.append(email)
             elif urls:
                 print("didnt find any legit url")
                 for url in urls:
                     email = self.extract_emails_with_selenium(url=url)
                     if email:
                         print(f"Find one email {email} from url {url}")
-                        break
+                        email_address_list.append(email)
+            if email_address_list:
+                try:
+                    if prev_conservation:
+                        prev_conservation = EMAIL_SEARCH_PROMPT.format(
+                            prev_conservations=prev_conservation,
+                            email_list=email_address_list
+                        )
+                    response = self.generate_content(
+                        content=EMAIL_SEARCH_PROMPT.format(email_list=email_address_list,
+                                                           prev_conservations=prev_conservation)
+                                                           + query
+                    )
+
+                    return json.loads(response.text)
+                except Exception as e:
+                    logging.error(
+                        f"Failed to generate email service content: {e}")
+                    return None
+            else:
+                return None
         except Exception as e:
             logging.error(f"Error when running find_email: {e}")
+            return None
 
 
 # if __name__ == '__main__':

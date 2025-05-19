@@ -1,4 +1,6 @@
-prev_conservations = ""  # Initialize with empty string or fetch from your conversation history
+# Initialize with empty string or fetch from your conversation history
+prev_conservations = ""
+email_list = ""
 EMAIL_SERVICE_PROMPT = f"""Write a concise cold email (under 120 words) from Harsh Kasat to a hiring manager or team lead at [insert company name].
 
 Start with a personalized compliment or reference to the company's recent work.
@@ -140,19 +142,12 @@ Keep it short, casual, and human — no overly formal tone
 If needed, help me ask good questions, clarify doubts, or propose next steps
 - more humanize, make grammicatly mistake, and don't add too much grammaer respose as human because human make mistake.
 
-Output: a few options for what I can reply with — ideally in plain text, no over-explaining
 Also important:
 If you see something from our previous conversations that connects to the company or makes the stronger, feel free to connect the dots.
 It's not required, but if it fits, use it to make the message more relevant and concise.
 
 HERE IS PREVIOUS CCONVERSATIONS: {prev_conservations}
 
-Example:
-Client: I like the idea, but we already use Jasper for blog generation.  
-Me: Totally get that! Jasper's solid. Curious—what's one thing you wish it did better? Maybe I can tweak InscribeAI to fill that gap.
-
-Client: I like the idea, but we already use Jasper for blog generation.  
-Me: Makes sense! If you're ever looking for a more customizable or self-hosted setup, happy to show you what mine can do(AI Generated).
 
 the response must follow this json: 
 {{
@@ -161,6 +156,66 @@ the response must follow this json:
     "goal": "string"              // e.g., win job, get reply
   }}
 }}
+Reposne Example :
+{{
+  "response": {{
+    "message": "Hey, thanks for reaching out! I really appreciate your interest in my work. I'm excited to discuss how we can collaborate on this project. Let me know when you're available for a quick chat.",
+    "goal": "get reply"
+  }}
+}}
 
 HERE IS CONTEXT ABOUT Message and OTHER THINGS: 
+"""
+
+
+EMAIL_SEARCH_PROMPT = """You're my AI assistant for searching emails for a company.
+
+I'll give you the list of company email scraped from the website.
+You need to return the email that is most likely to be the email of the company.
+if you didn't find any email, you need to return "No email found"
+
+here is the list of email:
+{email_list}
+Also important:
+If you see something from our previous conversations that connects to the company or makes the stronger, feel free to connect the dots.
+It's not required, but if it fits, use it to make the message more relevant and concise.
+
+HERE IS PREVIOUS CCONVERSATIONS: {prev_conservations}
+You need to return the email in the following json format:
+
+{{
+  "response": {{
+    "message": "string",           // the email that is most likely to be the email of the company
+    "goal": "string"              // e.g., email, no email found
+  }}
+}}
+example:
+{{
+  "response": {{
+    "message": "From the email list, the email that is most likely to be the email of the company is test@test.com",
+    "goal": "email"
+  }}
+}}
+also I will ask you some question around the email, you need to answer the question based on the email list.
+the question will be like this: 
+"""
+
+LLM_QUERY_PROMPT = """You're my AI assistant for writing messages during a conversation with a client, lead, or collaborator.
+
+Also important:
+If you see something from our previous conversations that connects to the company or makes the stronger, feel free to connect the dots.
+It's not required, but if it fits, use it to make the message more relevant and concise.
+
+HERE IS PREVIOUS CCONVERSATIONS: {prev_conservations}
+
+I'll give you the list of messages or replies in the chat.
+the response must follow this json: 
+
+{{
+    "response": {{
+        "message": "string",           // YOU MUST FOLLOW THIS JSON ONLY
+        "goal": "string"              // e.g., win job, get reply
+    }}
+}}
+You need to return the email in the following json format: 
 """
