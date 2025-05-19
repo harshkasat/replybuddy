@@ -156,11 +156,14 @@ export function AnimatedAIChat() {
     );
     if (command) {
       messageToSend = trimmedValue.substring(command.prefix.length).trim();
-      if (command.prefix === "/email") apiUrl = `${BASE_URL}/generate_email`;
+      if (command.prefix === "/email") 
+        apiUrl = `${BASE_URL}/generate_email`;
       else if (command.prefix === "/upwork")
         apiUrl = `${BASE_URL}/generate_upwork`;
       else if (command.prefix === "/message")
         apiUrl = `${BASE_URL}/generate_message`;
+      else if (command.prefix === '/search-email')
+        apiUrl = `${BASE_URL}/search_email`
     } else if (trimmedValue.startsWith("/")) {
       // Command typed but not matched or no space after
       // Check if it matches a prefix without space, to guide user or handle
@@ -182,21 +185,10 @@ export function AnimatedAIChat() {
     }
 
     if (!apiUrl) {
-      // No specific API command matched or not a command
-      // Default handling if you want to send all non-command messages to a general endpoint
-      // Or, as before, give a canned response if not sending to backend:
-      setTimeout(() => {
-        setIsTyping(false);
-        const aiMessage: MessageType = {
-          id: (Date.now() + 1).toString(),
-          conversation_id: conversationId,
-          role: "assistant",
-          message: "Thanks for your message! How can I help?", // Generic response
-          timestamp: new Date().toISOString(),
-        };
-        setMessages((prev) => [...prev, aiMessage]);
-      }, 1000);
-      return;
+      // No specific API command matched, use default query endpoint
+      apiUrl = `${BASE_URL}/query`;
+      messageToSend = trimmedValue; // Use the complete message as is
+      console.log(apiUrl)
     }
 
     try {
@@ -207,8 +199,8 @@ export function AnimatedAIChat() {
       );
       setIsTyping(false);
       let aiMsgText = "Sorry, I received an unexpected response.";
-      if (response.data?.data?.response?.message) {
-        aiMsgText = response.data.data.response.message;
+      if (response.data) {
+        aiMsgText = response.data.data;
       } else if (response.data?.error) {
         aiMsgText = `Error: ${response.data.error}`;
       }
@@ -270,14 +262,16 @@ export function AnimatedAIChat() {
           adjustTextareaHeight={adjustHeight}
         />
       ) : (
-        <div className="w-full max-w-2xl mx-auto flex flex-col h-screen"> 
+        <div className="w-full max-w-2xl mx-auto flex flex-col h-screen">
           <motion.div
             className="relative z-10 flex-1 flex flex-col overflow-hidden"
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
             transition={{ duration: 0.3 }}
           >
-            <div ref={chatContainerRef} className="flex-1 overflow-y-auto p-4"> {/* flex-1 and overflow-y-auto for scrolling messages */}
+            <div ref={chatContainerRef} className="flex-1 overflow-y-auto p-4">
+              {" "}
+              {/* flex-1 and overflow-y-auto for scrolling messages */}
               <MessageList
                 messages={messages}
                 isTyping={isTyping}
@@ -286,8 +280,6 @@ export function AnimatedAIChat() {
               />
             </div>
             <div className="p-4">
-              {" "}
-              {/* Input area wrapper for chat view */}
               <AnimatePresence>
                 {showCommandPalette && (
                   <CommandPalette

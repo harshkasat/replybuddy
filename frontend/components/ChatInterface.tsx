@@ -173,7 +173,7 @@ export function AnimatedAIChat() {
       label: "Message",
       description: "Improve Message Response",
       prefix: "/message",
-    },
+    }
   ];
 
   useEffect(() => {

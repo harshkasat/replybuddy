@@ -1,5 +1,5 @@
 // src/components/chat/config.ts
-import { Briefcase, Mail, Sparkles } from "lucide-react";
+import { Briefcase, Mail, Sparkles, Search } from "lucide-react";
 import { CommandSuggestion } from "./types";
 import * as React from "react";
 
@@ -25,6 +25,12 @@ export const commandSuggestionsData: CommandSuggestion[] = [
     description: "Improve Message Response",
     prefix: "/message",
   },
+  {
+    icon:  React.createElement(Search, {className: "w-4 h-4"}),
+    label: "Search",
+    description: "Find Email Website",
+    prefix: "/search-email"
+  }
 ];
 
 export const generateConversationId = (): string => {
