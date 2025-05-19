@@ -26,7 +26,6 @@ export function AnimatedAIChat() {
   const [isTyping, setIsTyping] = useState(false);
   const [activeSuggestion, setActiveSuggestion] = useState<number>(-1);
   const [showCommandPalette, setShowCommandPalette] = useState(false);
-  // const [recentCommand, setRecentCommand] = useState<string | null>(null); // Kept if needed for other UI feedback
   const [mousePosition, setMousePosition] = useState({ x: 0, y: 0 });
   const [messages, setMessages] = useState<MessageType[]>([]);
   const [inputFocused, setInputFocused] = useState(false);
@@ -34,28 +33,25 @@ export function AnimatedAIChat() {
   const [conversationId] = useState<string>(generateConversationId());
 
   const commandPaletteRef = useRef<HTMLDivElement>(null);
-  const chatContainerRef = useRef<HTMLDivElement>(null);
+  const messagesEndRef = useRef<HTMLDivElement>(null); // For scrolling to bottom of messages
+  const chatInputContainerRef = useRef<HTMLDivElement>(null);
+
   const { textareaRef, adjustHeight } = useAutoResizeTextarea({
-    minHeight: 60, // Default, can be overridden by ChatInput prop
+    minHeight: 60,
     maxHeight: 200,
   });
 
   const commandSuggestions: CommandSuggestionType[] = commandSuggestionsData;
 
-  // Inject global styles (e.g., for ripple)
   useEffect(() => {
     injectGlobalStyles();
   }, []);
 
-  // Scroll to bottom
+  // Scroll to bottom of the message list
   useEffect(() => {
-    if (chatContainerRef.current) {
-      chatContainerRef.current.scrollTop =
-        chatContainerRef.current.scrollHeight;
-    }
-  }, [messages, isTyping]); // also on isTyping for the typing indicator
+    messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
+  }, [messages, isTyping]);
 
-  // Command palette visibility based on input
   useEffect(() => {
     if (value.startsWith("/") && !value.includes(" ")) {
       setShowCommandPalette(true);
@@ -68,7 +64,6 @@ export function AnimatedAIChat() {
     }
   }, [value, commandSuggestions]);
 
-  // Mouse move for background effect
   useEffect(() => {
     const handleMouseMove = (e: MouseEvent) =>
       setMousePosition({ x: e.clientX, y: e.clientY });
@@ -76,7 +71,6 @@ export function AnimatedAIChat() {
     return () => window.removeEventListener("mousemove", handleMouseMove);
   }, []);
 
-  // Click outside command palette
   useEffect(() => {
     const handleClickOutside = (event: MouseEvent) => {
       const target = event.target as Node;
@@ -84,7 +78,8 @@ export function AnimatedAIChat() {
       if (
         commandPaletteRef.current &&
         !commandPaletteRef.current.contains(target) &&
-        !commandButton?.contains(target)
+        !commandButton?.contains(target) &&
+        textareaRef.current && !textareaRef.current.contains(target)
       ) {
         setShowCommandPalette(false);
       }
@@ -98,8 +93,6 @@ export function AnimatedAIChat() {
     const selectedCommand = commandSuggestions[index];
     setValue(selectedCommand.prefix + " ");
     setShowCommandPalette(false);
-    // setRecentCommand(selectedCommand.label);
-    // setTimeout(() => setRecentCommand(null), 2000); // Or 3500
     textareaRef.current?.focus();
     adjustHeight();
   };
@@ -156,22 +149,20 @@ export function AnimatedAIChat() {
     );
     if (command) {
       messageToSend = trimmedValue.substring(command.prefix.length).trim();
-      if (command.prefix === "/email") 
+      if (command.prefix === "/email")
         apiUrl = `${BASE_URL}/generate_email`;
       else if (command.prefix === "/upwork")
         apiUrl = `${BASE_URL}/generate_upwork`;
       else if (command.prefix === "/message")
         apiUrl = `${BASE_URL}/generate_message`;
       else if (command.prefix === '/search-email')
-        apiUrl = `${BASE_URL}/search_email`
+        apiUrl = `${BASE_URL}/search_email`;
     } else if (trimmedValue.startsWith("/")) {
-      // Command typed but not matched or no space after
-      // Check if it matches a prefix without space, to guide user or handle
       const simpleCmdMatch = commandSuggestions.find(
         (cmd) => cmd.prefix === trimmedValue
       );
       if (simpleCmdMatch) {
-        setIsTyping(false); // Don't send to backend, maybe show help
+        setIsTyping(false);
         const aiMessage: MessageType = {
           id: (Date.now() + 1).toString(),
           conversation_id: conversationId,
@@ -185,10 +176,8 @@ export function AnimatedAIChat() {
     }
 
     if (!apiUrl) {
-      // No specific API command matched, use default query endpoint
       apiUrl = `${BASE_URL}/query`;
-      messageToSend = trimmedValue; // Use the complete message as is
-      console.log(apiUrl)
+      messageToSend = trimmedValue;
     }
 
     try {
@@ -199,7 +188,7 @@ export function AnimatedAIChat() {
       );
       setIsTyping(false);
       let aiMsgText = "Sorry, I received an unexpected response.";
-      if (response.data) {
+      if (response.data && response.data.data) {
         aiMsgText = response.data.data;
       } else if (response.data?.error) {
         aiMsgText = `Error: ${response.data.error}`;
@@ -231,55 +220,59 @@ export function AnimatedAIChat() {
   ) => {
     e.stopPropagation();
     setShowCommandPalette((prev) => !prev);
-    if (!showCommandPalette) textareaRef.current?.focus(); // Focus input if opening palette
+    if (!showCommandPalette) textareaRef.current?.focus();
   };
 
   return (
-    <div className="min-h-screen flex flex-col w-full items-center justify-center bg-gray-50 dark:bg-neutral-950 text-neutral-800 dark:text-neutral-200 p-6 relative overflow-hidden">
-      {/* Background decorative blurbs */}
-      <div className="absolute inset-0 w-full h-full overflow-hidden -z-10">
+    <div className="flex flex-col w-full h-screen bg-gray-50 dark:bg-neutral-950 text-neutral-800 dark:text-neutral-200 relative"> {/* Removed p-0 sm:p-6, ensure full height */}
+      {/* Background decorative blurbs - ensure these don't interfere with layout if position fixed/absolute */}
+      <div className="absolute inset-0 w-full overflow-hidden -z-10">
         <div className="absolute top-0 left-1/4 w-96 h-96 bg-violet-500/10 rounded-full mix-blend-normal filter blur-[128px] animate-pulse" />
         <div className="absolute bottom-0 right-1/4 w-96 h-96 bg-indigo-500/10 rounded-full mix-blend-normal filter blur-[128px] animate-pulse delay-700" />
         <div className="absolute top-1/4 right-1/3 w-64 h-64 bg-fuchsia-500/10 rounded-full mix-blend-normal filter blur-[96px] animate-pulse delay-1000" />
       </div>
 
       {!chatStarted ? (
-        <InitialScreen
-          inputValue={value}
-          onInputValueChange={setValue}
-          onSendMessage={handleSendMessage}
-          onKeyDown={handleKeyDown}
-          onInputFocus={() => setInputFocused(true)}
-          onInputBlur={() => setInputFocused(false)}
-          isTyping={isTyping}
-          showCommandPalette={showCommandPalette}
-          activeSuggestion={activeSuggestion}
-          commandSuggestions={commandSuggestions}
-          onSelectCommandSuggestion={handleSelectCommandSuggestion}
-          onToggleCommandPalette={handleToggleCommandPalette}
-          commandPaletteRef={commandPaletteRef}
-          textareaRef={textareaRef}
-          adjustTextareaHeight={adjustHeight}
-        />
+         <div className="flex-1 flex items-center justify-center p-6"> {/* Ensure InitialScreen is centered and has padding */}
+            <InitialScreen
+                inputValue={value}
+                onInputValueChange={setValue}
+                onSendMessage={handleSendMessage}
+                onKeyDown={handleKeyDown}
+                onInputFocus={() => setInputFocused(true)}
+                onInputBlur={() => setInputFocused(false)}
+                isTyping={isTyping}
+                showCommandPalette={showCommandPalette}
+                activeSuggestion={activeSuggestion}
+                commandSuggestions={commandSuggestions}
+                onSelectCommandSuggestion={handleSelectCommandSuggestion}
+                onToggleCommandPalette={handleToggleCommandPalette}
+                commandPaletteRef={commandPaletteRef}
+                textareaRef={textareaRef}
+                adjustTextareaHeight={adjustHeight}
+            />
+        </div>
       ) : (
-        <div className="w-full max-w-2xl mx-auto flex flex-col h-screen">
+        // Main chat view: Takes full width and constrained height
+        <div className="w-full max-w-2xl mx-auto flex flex-col h-full"> {/* Use h-full to take parent's height */}
           <motion.div
-            className="relative z-10 flex-1 flex flex-col overflow-hidden"
+            className="flex flex-col flex-1 relative z-10 overflow-hidden" // Added flex-1 here to grow and fill
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
             transition={{ duration: 0.3 }}
           >
-            <div ref={chatContainerRef} className="flex-1 overflow-y-auto p-4">
-              {" "}
-              {/* flex-1 and overflow-y-auto for scrolling messages */}
+            {/* Message List Area - This will scroll */}
+            <div className="flex-1 overflow-y-auto p-6"> {/* Add padding here for messages */}
               <MessageList
                 messages={messages}
                 isTyping={isTyping}
-                chatContainerRef={chatContainerRef}
-              // chatContainerRef is now on this div
+                // chatContainerRef is removed as MessageList's root is now the scrollable container
               />
+              <div ref={messagesEndRef} /> {/* Element to scroll to */}
             </div>
-            <div className="p-4">
+
+            {/* Input Area - Stays at the bottom */}
+            <div ref={chatInputContainerRef} className="p-4 border-t border-neutral-200 dark:border-neutral-800 relative bg-gray-50 dark:bg-neutral-950"> {/* Added background to match */}
               <AnimatePresence>
                 {showCommandPalette && (
                   <CommandPalette
@@ -287,7 +280,7 @@ export function AnimatedAIChat() {
                     activeSuggestion={activeSuggestion}
                     onSelectSuggestion={handleSelectCommandSuggestion}
                     commandPaletteRef={commandPaletteRef}
-                    className="bottom-[calc(4rem+1.5rem)]" // Position above chat input (adjust based on actual input height)
+                    className="absolute bottom-full left-4 right-4 mb-2 z-20" // Ensure z-index is higher if needed
                   />
                 )}
               </AnimatePresence>
@@ -312,7 +305,6 @@ export function AnimatedAIChat() {
         </div>
       )}
 
-      {/* Mouse Follow Gradient Effect */}
       {inputFocused && (
         <motion.div
           className="fixed w-[50rem] h-[50rem] rounded-full pointer-events-none -z-10 opacity-[0.02] dark:opacity-[0.03] bg-gradient-to-r from-violet-500 via-fuchsia-500 to-indigo-500 blur-[96px]"
