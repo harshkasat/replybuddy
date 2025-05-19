@@ -13,6 +13,13 @@ from src.llm_config.config import LlmClient
 
 
 class FindEmailService(LlmClient):
+    def fix_url(self, url: str) -> str | None:
+        if url.startswith("http://") or url.startswith("https://"):
+            return url
+        elif "." in url:  # basic check to avoid emails or junk
+            return "https://" + url
+        return None
+
     def get_all_urls(self, base_url):
         try:
             response = requests.get(base_url, timeout=15)
@@ -26,15 +33,28 @@ class FindEmailService(LlmClient):
             return list(links)
 
         except Exception as e:
-            logging.error(f"Error: {e}")
+            logging.error(f"Error when FindEmailService.get_all_urls: {e}")
             return []
 
     def get_legit_url(self, urls):
-        pattern = re.compile(
-            r"(privacy|policy|contact[\s\-]?us)", re.IGNORECASE)
+        pattern = re.compile(r"(privacy|policy|contact[\s\-]?us)", re.IGNORECASE)
         matched_urls = [url for url in urls if pattern.search(url)]
 
         return matched_urls
+
+    def extract_website_from_text(self, text: str) -> str | None:
+        try:
+            emails = re.findall(r"(https?://[^\s]+)", text)
+            if emails:
+                email = emails[0]
+                print(f"Extracted email: {email}")
+                return email
+            return None
+        except Exception as e:
+            print(
+                f"Error while extracting FindEmailService.extract_website_from_text : {e}"
+            )
+            return None
 
     def extract_emails_with_selenium(self, url):
         chrome_options = Options()
@@ -61,24 +81,26 @@ class FindEmailService(LlmClient):
             visible_text = driver.find_element("tag name", "body").text
             combined = html + "\n" + visible_text
 
-            email_re = re.compile(
-                r"[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}")
+            email_re = re.compile(r"[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}")
             regex_emails = set(email_re.findall(combined))
 
             # combine both sets
             return mailto_emails.union(regex_emails)
 
         except Exception as e:
-            print("Error:", e)
+            print("Error when FindEmailService.extract_emails_with_selenium:", e)
             return set()
 
         finally:
             driver.quit()
 
-    def find_email(
-        self, base_url, query: str, prev_conservation: PrevConservation = None
-    ):
+    def find_email(self, query: str, prev_conservation: PrevConservation = None):
         try:
+            base_url = self.extract_website_from_text(text=query)
+            if not base_url:
+                logging.error("No base URL found in the query.")
+                return None
+            base_url = self.fix_url(url=base_url)
             email_address_list = []
             urls = self.get_all_urls(base_url=base_url)
             all_legit_urls = self.get_legit_url(urls=urls)
@@ -101,18 +123,19 @@ class FindEmailService(LlmClient):
                     if prev_conservation:
                         prev_conservation = EMAIL_SEARCH_PROMPT.format(
                             prev_conservations=prev_conservation,
-                            email_list=email_address_list
+                            email_list=email_address_list,
                         )
                     response = self.generate_content(
-                        content=EMAIL_SEARCH_PROMPT.format(email_list=email_address_list,
-                                                           prev_conservations=prev_conservation)
-                                                           + query
+                        content=EMAIL_SEARCH_PROMPT.format(
+                            email_list=email_address_list,
+                            prev_conservations=prev_conservation,
+                        )
+                        + query
                     )
 
                     return json.loads(response.text)
                 except Exception as e:
-                    logging.error(
-                        f"Failed to generate email service content: {e}")
+                    logging.error(f"Failed to generate email service content: {e}")
                     return None
             else:
                 return None

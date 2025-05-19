@@ -11,7 +11,7 @@ from src.services.upwork_proposal_service import UpworkService
 from src.services.message_service import MessageService
 from src.services.find_email_service import FindEmailService
 from src.services.llm_query_service import LLMQueryService
-from src.utils.pydantic_schema import UserRequest, AIResponse, EmailSearchRequest
+from src.utils.pydantic_schema import UserRequest, AIResponse
 
 load_dotenv()
 
@@ -238,11 +238,10 @@ async def generate_message(request: UserRequest):
 
 
 @app.post('/search_email')
-async def search_email(request: EmailSearchRequest):
+async def search_email(request: UserRequest):
     try:
         service = FindEmailService()
-        response = service.find_email(base_url=request.base_url,
-                                      query=request.query,
+        response = service.find_email(query=request.company_info,
                                       prev_conservation=request.prev_conservation)
         if response is None:
             logging.error("Email search returned None")

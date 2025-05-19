@@ -11,10 +11,6 @@ class UserRequest(BaseModel):
     company_info: str
     prev_conservation: Optional[PrevConservation] = None
 
-class EmailSearchRequest(BaseModel):
-    base_url: str
-    query: str
-    prev_conservation: Optional[PrevConservation] = None
 
 class AIResponse(BaseModel):
     message: str
