@@ -22,12 +22,14 @@ app = FastAPI(
     version="1.0.0",
 )
 
-app = FastAPI()
 
 origins = [
     "http://localhost:3000",
-    os.environ.get('PROD_URL'),
 ]
+
+prod_url = os.environ.get('PROD_URL')
+if prod_url:
+    origins.append(prod_url)
 
 app.add_middleware(
     CORSMiddleware,
@@ -275,3 +277,8 @@ async def search_email(request: UserRequest):
                 error=str(e)
             ).model_dump()
         )
+
+if __name__ == "__main__":
+    import uvicorn
+    logging.basicConfig(level=logging.INFO)
+    uvicorn.run(app, host="0.0.0", port=8000)

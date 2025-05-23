@@ -4,6 +4,16 @@ from google.genai import types as google_config
 from src.llm_config import genai_api_key, SAFE_SETTINGS, SYSTEM_INSTRUCTION
 
 
+# Custom Exception Classes
+class LlmInitializationError(RuntimeError):
+    """Custom exception for LLM client initialization errors."""
+    pass
+
+
+class LlmGenerationError(Exception):
+    """Custom exception for errors during LLM content generation."""
+    pass
+
 # Initialize the API client
 class LlmClient:
     def __init__(self):
@@ -18,10 +28,11 @@ class LlmClient:
             logging.info("LLM component initialized successfully")
         except Exception as e:
             logging.error(f"Failed to configure LLM: {e}")
+            raise LlmInitializationError("Failed to initialize LLM client") from e
 
-    def generate_content(self, content):
+    async def generate_content(self, content):
         try:
-            response = self.client.models.generate_content(
+            response = await self.client.aio.models.generate_content(
                 model="gemini-2.0-flash",
                 contents=content,
                 config=self.config,
@@ -33,12 +44,12 @@ class LlmClient:
             return response
         except Exception as e:
             logging.error(f"Failed to generate content: {e}")
-            return None
+            raise LlmGenerationError("Failed to generate content from LLM") from e
 
 
-    def generalize_content(self, content):
+    async def generalize_content(self, content):
         try:
-            response = self.client.models.generate_content(
+            response = await self.client.aio.models.generate_content(
                 model="gemini-2.0-flash",
                 contents=content,
                 config=google_config.GenerateContentConfig(
@@ -53,4 +64,4 @@ class LlmClient:
             return response
         except Exception as e:
             logging.error(f"Failed to generate content: {e}")
-            return None
+            raise LlmGenerationError("Failed to generalize content from LLM") from e

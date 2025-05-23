@@ -1,6 +1,9 @@
-def main():
-    print("Hello from backend!")
+import asyncio
+from src.services.yc_service import YcService
+
+async def main():
+    gs = await YcService().yc_service()
 
 
 if __name__ == "__main__":
-    main()
+    asyncio.run(main())

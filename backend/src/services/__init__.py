@@ -171,7 +171,7 @@ HERE IS CONTEXT ABOUT Message and OTHER THINGS:
 EMAIL_SEARCH_PROMPT = """You're my AI assistant for searching emails for a company.
 
 I'll give you the list of company email scraped from the website.
-You need to return the email that is most likely to be the email of the company.
+You need to return the email that is most likely to be the email of the company or edu or any email that likely email.
 if you didn't find any email, you need to return "No email found"
 
 here is the list of email:

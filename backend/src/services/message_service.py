@@ -8,13 +8,13 @@ from src.utils.pydantic_schema import PrevConservation
 
 class MessageService(LlmClient):
 
-    def message_service(self, comapany_info:str, prev_conservation:PrevConservation = None):
+    async def message_service(self, comapany_info:str, prev_conservation:PrevConservation = None):
         try:
             if prev_conservation:
                 prev_conservation = MESSAGE_SERVICE_PROMPT.format(
                     prev_conservations=prev_conservation)
 
-            response = self.generate_content(
+            response = await self.generate_content(
                 content=MESSAGE_SERVICE_PROMPT + comapany_info
             )
             return json.loads(response.text)
