@@ -203,7 +203,7 @@ async def generate_upwork(request: UserRequest):
 async def generate_message(request: UserRequest):
     try:
         service = MessageService()
-        response = service.message_service(comapany_info=request.company_info,
+        response = await service.message_service(comapany_info=request.company_info,
                                            prev_conservation=request.prev_conservation)
         logging.info("Message generated successfully")
         if response is None:

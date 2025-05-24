@@ -7,7 +7,7 @@ from src.GoogleSheet.google_sheet import GoogleSheet
 class YcService:
     async def _get_company_info_batch(self):
         try:
-            gs = GoogleSheet().get_all_title(batch_size=5)
+            gs = GoogleSheet().get_all_title()
             logging.info(f"Google Sheet data retrieved successfully")
             if gs is None:
                 logging.error("Google Sheet data is None")
@@ -43,11 +43,16 @@ class YcService:
             logging.error(f"Error when getting the cold email: {e}")
             return None
 
-    async def _push_to_sheet(self, cold_email: str, email_address: str):
+    async def _push_to_sheet(self, index, cold_email: str, email_address: str):
         try:
             gs = GoogleSheet()
-            gs.append_data(cold_email=cold_email, email_address=email_address)
-            logging.info("Cold email pushed to Google Sheet successfully")
+            gs.update_email(
+                row_index=index, cold_email=cold_email, email_address=email_address
+            )
+
+            logging.info(
+                "Cold email and email address pushed to Google Sheet successfully"
+            )
         except Exception as e:
             logging.error(f"Error when pushing to Google Sheet: {e}")
             return None
@@ -71,6 +76,8 @@ class YcService:
                 company_description = company["Company Description"]
                 industry = company["Industry"]
                 founder_name = company["Founder Name"]
+                current_row_index = company["current_index"]
+                print(f"Current row index: {current_row_index}")
 
                 # get company email
                 email_address = await self._find_email(company_url=website_url)
@@ -94,6 +101,11 @@ class YcService:
                 # push to google sheet
                 print(f"Cold email: {cold_email}")
                 print(f"Email address: {email_address}")
+                await self._push_to_sheet(
+                    index=current_row_index,
+                    cold_email=cold_email,
+                    email_address=email_address,
+                )
         except Exception as e:
             logging.error(f"Error in YcService: {e}")
             return None

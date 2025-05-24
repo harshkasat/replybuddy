@@ -39,38 +39,20 @@ class GoogleSheet:
         sheet_id = os.getenv("SHEET_ID")  # Replace with actual ID
         self.sheet = self.client.open_by_key(sheet_id).sheet1
 
-    def append_data(
+    def update_email(
         self,
+        row_index: int,
         cold_email: str,
         email_address: str,
     ):
         try:
-            # === Open Google Sheet ===
-            # sheet_id = os.getenv("SHEET_ID")  # Replace with actual ID
-            # sheet = self.client.open_by_key(sheet_id).sheet1
+            values = [[email_address, cold_email, "Pending"]]  # G, H, I
+            range_str = f"G{row_index}:I{row_index}"  # Target that row
+            self.sheet.update(range_str, values)
+            logging.info(f"Updated row {row_index} in G:H:I")
+        except gspread.exceptions.APIError as e:
+            logging.error(f"ERROR while updating G:H:I in row {row_index}: {e}")
 
-            # === Headers (Add if not exist) ===
-            headers = [
-                "Email",
-                "Cold Email",
-                "Status",
-            ]
-
-            # === Example Video Data ===
-            video_data = {
-                "Video url": cold_email,
-                "Title": email_address,
-                "Status": "Pending",
-            }
-
-            # === Push to Sheet ===
-            row = [video_data[h] for h in headers]
-            self.sheet.append_row(row)
-
-            logging.info("Video pushed to Google Sheet.")
-
-        except Exception as e:
-            logging.error(f"ERROR when running google sheet append data: {e}")
 
     def last_sheet_row(self):
         try:
@@ -98,7 +80,11 @@ class GoogleSheet:
             if result:
                 save_last_row(end_row)
 
-            json_data = [dict(zip(headers, row)) for row in result]
+            json_data = []
+            for i, row in enumerate(result):
+                row_dict = dict(zip(headers, row))
+                row_dict["current_index"] = start_row + i
+                json_data.append(row_dict)
 
             return json_data
 
