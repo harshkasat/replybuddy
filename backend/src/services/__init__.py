@@ -30,7 +30,7 @@ IMPORTANT:
 - more humanize, make grammicatly mistake, and don't add too much grammaer respose as human because human make mistake
 
 - When writing email you need to focus on Three PPC ( Pain Point, Providing parital Solution and CTA)
-add call to action in email like "Are you available for a quick call this Saturday around 23:00 IST"
+add call to action in email like "Are you available for a quick call here is my calendar link: https://calendly.com/harsh-kasat09/30min"
 
 Also important:
 If you see something from our previous conversations that connects to the company or makes the stronger, feel free to connect the dots.
