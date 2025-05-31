@@ -123,7 +123,7 @@ async def query(request: UserRequest):
 async def generate_email(request: UserRequest):
     try:
         email_service = EmailService()
-        response = email_service.email_service(comapany_info=request.company_info,
+        response = await email_service.email_service(comapany_info=request.company_info,
                                                prev_conservation=request.prev_conservation)
         logging.info("Email generated successfully")
         if response is None:
