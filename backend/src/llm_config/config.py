@@ -18,9 +18,15 @@ class LlmGenerationError(Exception):
 class LlmClient:
     def __init__(self):
         try:
+            try:
+                with open("src\llm_config\guid.md", "r") as file:
+                    breif_intro = file.read()
+            except FileNotFoundError:
+                logging.warning("guid.md file not found, using empty brief intro")
+                breif_intro = ""
             self.client = genai.Client(api_key=genai_api_key)
             self.config = google_config.GenerateContentConfig(
-                system_instruction=SYSTEM_INSTRUCTION,
+                system_instruction=SYSTEM_INSTRUCTION.format(breif_intro=breif_intro),
                 safety_settings=SAFE_SETTINGS,
                 response_mime_type="application/json",
                 top_k=1
