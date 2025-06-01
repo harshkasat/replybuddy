@@ -1,15 +1,20 @@
 # Initialize with empty string or fetch from your conversation history
 prev_conservations = ""
 email_list = ""
-EMAIL_SERVICE_PROMPT = f"""Write a concise cold email (under 120 words) from Harsh Kasat to a hiring manager or team lead at [insert company name].
+breif_intro = ""
+EMAIL_SERVICE_PROMPT = """Write a concise cold email (under 120 words) from Harsh Kasat to a get interview or intership [insert company name].
 
 Start with a personalized compliment or reference to the company's recent work.
 Briefly mention Harsh's relevant experience or a specific project that aligns with the company's focus.
 Include a clear, specific ask (e.g., opportunity to collaborate, short call).
 Maintain a friendly, conversational tone.
-End with a soft close (e.g., "Would love to connect if you're open to it.").
+End with a soft close (e.g., "Would love to know if there is openening for intern/fulltime.").
 Provide a subject line that is direct and relevant.
-Context: Harsh is a GenAI and Fullstack Developer with experience in deploying LLM agents, building scalable applications, and developing AI-powered tools. His portfolio is available at whoisharsh.space. Subject line should be simple or create curiosity.
+HARSH KASAT PORTFOLIO: {breif_intro}
+- try to build connection with the company and harsh portfolio / projects so they can relate to it. 
+Example:
+"if someone is building AI agents or soemthing, you can use projects skill and tell " 
+i done a project like this to building ... (something diffcult or valuable insight from the project) this can help both.
 IMPORTANT:
 - Be specific - Show that you've done your homework on the person or company.
 - Keep it short - Get to the point fast. Ideally under 150 words.
@@ -29,7 +34,7 @@ IMPORTANT:
     Most people decide to stop reading after the first sentence. Make it personal and smart.
 - more humanize, make grammicatly mistake, and don't add too much grammaer respose as human because human make mistake
 
-- When writing email you need to focus on Three PPC ( Pain Point, Providing parital Solution and CTA)
+- When writing cold email you need to focus on Three PPC ( Pain Point, Providing parital Solution and CTA)
 add call to action in email like "Are you available for a quick call here is my calendar link: https://calendly.com/harsh-kasat09/30min"
 
 Also important:
