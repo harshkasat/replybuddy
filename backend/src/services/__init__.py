@@ -66,6 +66,8 @@ Cheers,
 
 HERE IS CONTEXT ABOUT COMPANY, PRODUCT AND OTHER THINGS:
 
+AT LAST you need PS:
+P.S. If it's a no or not the right time, all good just hoping for a reply. Ghosting's tough when you're job hunting as a fresh grad.
 """
 
 

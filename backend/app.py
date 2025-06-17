@@ -163,7 +163,7 @@ async def generate_email(request: UserRequest):
 async def generate_upwork(request: UserRequest):
     try:
         service = UpworkService()
-        response = service.upwork_service(comapany_info=request.company_info,
+        response = await service.upwork_service(comapany_info=request.company_info,
                                           prev_conservation=request.prev_conservation)
         logging.info("Upwork Proposal generated successfully")
         if response is None:
