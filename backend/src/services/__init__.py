@@ -2,44 +2,43 @@
 prev_conservations = ""
 email_list = ""
 breif_intro = ""
-EMAIL_SERVICE_PROMPT = """Write a concise cold email (under 120 words) from Harsh Kasat to a get interview or intership [insert company name].
+email_tips = ""
+try:
+    with open(
+        "Z:/chatBotReplyBuddy/backend\src\llm_config\email_tips.md",
+        "r",
+        encoding="utf-8",
+    ) as file:
+        email_tips = file.read()
 
+except FileNotFoundError:
+    email_tips = "No email tips found, please check the file path."
+
+try:
+    with open(
+        "Z:/chatBotReplyBuddy/backend\src\llm_config\guide.md",
+        "r",
+        encoding="utf-8",
+    ) as file:
+        breif_intro = file.read()
+
+except FileNotFoundError:
+    breif_intro = "No intro found, please check the file path."
+
+EMAIL_SERVICE_PROMPT ="""
+Write a concise cold email (under 100 words) from Harsh Kasat to a get interview or intership [insert company name].
+Avoid using capital letters or special characters in subject lines. Keep it lowercase and simple. Overdoing formatting makes your email look spammy and unprofessional, killing open rates.
 Start with a personalized compliment or reference to the company's recent work.
 Briefly mention Harsh's relevant experience or a specific project that aligns with the company's focus.
 Include a clear, specific ask (e.g., opportunity to collaborate, short call).
 Maintain a friendly, conversational tone.
 End with a soft close (e.g., "Would love to know if there is openening for intern/fulltime.").
 Provide a subject line that is direct and relevant.
-HARSH KASAT PORTFOLIO: {breif_intro}
-- try to build connection with the company and harsh portfolio / projects so they can relate to it. 
-Example:
-"if someone is building AI agents or soemthing, you can use projects skill and tell " 
-i done a project like this to building ... (something diffcult or valuable insight from the project) this can help both.
-IMPORTANT:
-- Be specific - Show that you've done your homework on the person or company.
-- Keep it short - Get to the point fast. Ideally under 150 words.
-- Make it easy to say yes - Ask something that's simple to respond to.
-- Show relevance - Mention something that connects you both (mutual interest, recent work, etc).
-- Be human - Don't sound like a robot or sales rep. Write how you talk.
-- Give value upfront - Tell what's in it for them, not just what you want.
-- Subject Line = 90% of the Game
-    You only get one shot at getting opened. Make it sharp.
-    Examples that worked:
-    “openai + notion backed me — incoming stanford”
-    “dash founder — quick q”
-    “YC founder building ai agents — saw your latest launch”
-- Don't attach files - Can look spammy or risky.
-- Follow up once - If no reply, one soft follow-up is okay
-- First Line = The Real Hook
-    Most people decide to stop reading after the first sentence. Make it personal and smart.
-- more humanize, make grammicatly mistake, and don't add too much grammaer respose as human because human make mistake
+HARSH KASAT PORTFOLIO: 
 
-- When writing cold email you need to focus on Three PPC ( Pain Point, Providing parital Solution and CTA)
-add call to action in email like "Are you available for a quick call here is my calendar link: https://calendly.com/harsh-kasat09/30min"
 
-Also important:
-If you see something from our previous conversations that connects to the company or makes the stronger, feel free to connect the dots.
-It's not required, but if it fits, use it to make the message more relevant and concise.
+""" + breif_intro + "\n\n" + email_tips + """
+
 
 HERE IS PREVIOUS CCONVERSATIONS: {prev_conservations}
 
@@ -72,7 +71,7 @@ P.S. If it's a no or not the right time, all good just hoping for a reply. Ghost
 
 
 UPWORK_SERVICE_PROMPT = f"""Write a short Upwork proposal (under 150200 words) for [insert job title or description].
-
+Avoid using capital letters or special characters in subject lines. Keep it lowercase and simple. Overdoing formatting makes your email look spammy and unprofessional, killing open rates.
 Start with a specific hook (refer to their job post, goal, or challenge).
 
 Mention 12 past projects that match what they're asking.
@@ -137,7 +136,7 @@ HERE IS CONTEXT ABOUT COMPANY, PRODUCT AND OTHER THINGS:
 """
 
 MESSAGE_SERVICE_PROMPT = f"""You're my AI assistant for writing messages during a conversation with a client, lead, or collaborator.
-
+Avoid using capital letters or special characters in subject lines. Keep it lowercase and simple. Overdoing formatting makes your email look spammy and unprofessional, killing open rates.
 I'll give you the list of messages or replies in the chat.
 Your job:
 

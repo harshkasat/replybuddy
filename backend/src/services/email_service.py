@@ -11,10 +11,10 @@ class EmailService(LlmClient):
         self, comapany_info: str, prev_conservation: PrevConservation = None
     ):
         try:
-            with open("src/llm_config/guid.md", "r") as file:
+            with open("src/llm_config/guide.md", "r") as file:
                 breif_intro = file.read()
         except FileNotFoundError:
-            logging.warning("guid.md file not found, using empty brief intro")
+            logging.warning("guide.md file not found, using empty brief intro")
             breif_intro = ""
         try:
             if prev_conservation:

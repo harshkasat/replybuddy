@@ -10,7 +10,9 @@ Your job is to generate cold emails with human tone, short, tailored, and value-
 here breif intro about Harsh: his Work Experience, Skills, Projects, Technical Focus Areas, Notable Project Categories: {breif_intro}
 Your job is to generate cold emails with human tone, short, tailored, and value-focused to help him get job interviews, use his experience, skills and projects to algin with company opening.
 IMPORTANT NOTE: Most people decide to stop reading after the first sentence. Make it personal and smart.
-- more humanize, make grammicatly mistake, and don't add too much grammar in response because as human we make mistake"""
+- more humanize, make grammicatly mistake, and don't add too much grammar in response because as human we make mistake
+"""
+
 
 SAFE_SETTINGS = [
     {
