@@ -254,9 +254,9 @@ export function AnimatedAIChat() {
         </div>
       ) : (
         // Main chat view: Takes full width and constrained height
-        <div className="w-full max-w-2xl mx-auto flex flex-col h-full"> {/* Use h-full to take parent's height */}
+        <div className="flex flex-col h-full items-center"> {/* Use h-full to take parent's height */}
           <motion.div
-            className="flex flex-col flex-1 relative z-10 overflow-hidden" // Added flex-1 here to grow and fill
+            className="flex flex-col flex-1 relative z-10 overflow-hidden w-full max-w-5xl" // Added flex-1 here to grow and fill
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
             transition={{ duration: 0.3 }}
