@@ -243,7 +243,7 @@ async def generate_message(request: UserRequest):
 async def search_email(request: UserRequest):
     try:
         service = FindEmailService()
-        response = service.find_email(query=request.company_info,
+        response = await service.find_email(query=request.company_info,
                                       prev_conservation=request.prev_conservation)
         if response is None:
             logging.error("Email search returned None")
