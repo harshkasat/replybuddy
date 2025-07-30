@@ -4,6 +4,7 @@ from src.services import EMAIL_SERVICE_PROMPT
 from src.llm_config.config import LlmClient
 from src.utils.pydantic_schema import PrevConservation
 
+INSTRUCTION = """<instructions> tell more how my project can algin with this company tell more project to make connection between company <instruction/>"""
 
 class EmailService(LlmClient):
 
@@ -25,7 +26,7 @@ class EmailService(LlmClient):
                 breif_intro=breif_intro, prev_conservations=prev_conservation
             )
             response = await self.generate_content(
-                content=email_service_prompt + comapany_info
+                content=email_service_prompt + comapany_info + INSTRUCTION,
             )
             return json.loads(response.text)
         except Exception as e:
