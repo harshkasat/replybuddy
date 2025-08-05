@@ -224,7 +224,7 @@ export function AnimatedAIChat() {
   };
 
   return (
-    <div className="flex flex-col w-full h-screen bg-gray-50 dark:bg-neutral-950 text-neutral-800 dark:text-neutral-200 relative"> {/* Removed p-0 sm:p-6, ensure full height */}
+    <div className="flex flex-col w-full h-screen bg-gray-50 dark:bg-neutral-950 text-neutral-800 dark:text-neutral-200 relative overflow-y-auto">
       {/* Background decorative blurbs - ensure these don't interfere with layout if position fixed/absolute */}
       <div className="absolute inset-0 w-full overflow-hidden -z-10">
         <div className="absolute top-0 left-1/4 w-96 h-96 bg-violet-500/10 rounded-full mix-blend-normal filter blur-[128px] animate-pulse" />
@@ -233,7 +233,7 @@ export function AnimatedAIChat() {
       </div>
 
       {!chatStarted ? (
-         <div className="flex-1 flex items-center justify-center p-6"> {/* Ensure InitialScreen is centered and has padding */}
+         <div className="flex-1 flex items-center justify-center p-6 relative">
             <InitialScreen
                 inputValue={value}
                 onInputValueChange={setValue}
@@ -256,7 +256,7 @@ export function AnimatedAIChat() {
         // Main chat view: Takes full width and constrained height
         <div className="flex flex-col h-full items-center"> {/* Use h-full to take parent's height */}
           <motion.div
-            className="flex flex-col flex-1 relative z-10 overflow-hidden w-full max-w-5xl" // Added flex-1 here to grow and fill
+            className="flex flex-col flex-1 relative z-10 w-full max-w-5xl" // Added flex-1 here to grow and fill
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
             transition={{ duration: 0.3 }}
